@@ -83,6 +83,9 @@ class ElectionMagicWall {
         
         // Setup mobile panel controls
         this.setupMobilePanelControls();
+        
+        // Setup selection label
+        this.selectionLabel = document.getElementById('selectionLabel');
     }
     
     setupMobilePanelControls() {
@@ -121,6 +124,20 @@ class ElectionMagicWall {
                     }
                 }
             });
+        }
+    }
+    
+    showSelectionLabel(text, type = 'default') {
+        if (this.selectionLabel) {
+            this.selectionLabel.textContent = text;
+            this.selectionLabel.className = `selection-label ${type}`;
+            this.selectionLabel.style.display = 'block';
+        }
+    }
+    
+    hideSelectionLabel() {
+        if (this.selectionLabel) {
+            this.selectionLabel.style.display = 'none';
         }
     }
     
@@ -797,12 +814,13 @@ class ElectionMagicWall {
         this.selectedState = stateName;
         this.selectedStateLayer = layer;
         
-        // Highlight selected state
+        // Highlight selected state with prominent styling
         layer.setStyle({
-            weight: 3,
+            weight: 4,
             opacity: 1,
-            fillOpacity: 0.8,
-            color: '#000000'
+            fillOpacity: 0.85,
+            color: '#FF6B35', // Bright orange border
+            dashArray: '8, 4' // Longer dashed border for state level
         });
         
         // Add click handler to the selected state - clicking again drills to counties
@@ -817,6 +835,9 @@ class ElectionMagicWall {
         
         // Snap to selected state - center map on state bounds
         this.snapToState(layer);
+        
+        // Show selection label on map
+        this.showSelectionLabel(stateName, 'state');
         
         // Show drill-up button since we're now in state level
         this.showDrillUpButton();
@@ -839,6 +860,9 @@ class ElectionMagicWall {
         this.selectedState = null;
         this.selectedStateLayer = null;
         this.currentStateBounds = null; // Clear stored bounds when clearing state
+        
+        // Hide selection label when clearing state
+        this.hideSelectionLabel();
     }
 
     clearCountySelection() {
@@ -852,6 +876,13 @@ class ElectionMagicWall {
         }
         this.selectedCounty = null;
         this.selectedCountyLayer = null;
+        
+        // Update selection label when clearing county (show state if selected)
+        if (this.selectedState) {
+            this.showSelectionLabel(this.selectedState, 'state');
+        } else {
+            this.hideSelectionLabel();
+        }
     }
 
     snapToState(layer) {
@@ -995,13 +1026,14 @@ class ElectionMagicWall {
         this.selectedCounty = { name: countyName, state: stateName };
         this.selectedCountyLayer = layer;
         
-        // Highlight selected county
+        // Highlight selected county with prominent styling
         if (layer) {
             layer.setStyle({
-                weight: 3,
+                weight: 4,
                 opacity: 1,
-                fillOpacity: 0.8,
-                color: '#000000'
+                fillOpacity: 0.9,
+                color: '#FFD700', // Bright gold border
+                dashArray: '5, 5' // Dashed border for extra visibility
             });
             
             // Snap to county BUT don't overwrite the original state bounds
@@ -1011,6 +1043,9 @@ class ElectionMagicWall {
             
             console.log('Selected county and snapped to it, but preserved original state bounds for drill-up');
         }
+        
+        // Show selection label on map
+        this.showSelectionLabel(`${countyName}, ${stateName}`, 'county');
         
         // Show county details in sidebar
         this.showCountyDetails(stateName, countyName);

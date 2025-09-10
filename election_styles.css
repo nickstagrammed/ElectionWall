@@ -578,6 +578,34 @@ body {
     background: #005a99;
 }
 
+/* Selection Labels */
+.selection-label {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    pointer-events: none;
+    max-width: 250px;
+    word-wrap: break-word;
+}
+
+.selection-label.county {
+    background: rgba(255, 215, 0, 0.9);
+    color: #333;
+}
+
+.selection-label.state {
+    background: rgba(255, 107, 53, 0.9);
+    color: white;
+}
+
 /* Enhanced Drill-up Button for Mobile */
 .drill-up-button {
     position: absolute;
