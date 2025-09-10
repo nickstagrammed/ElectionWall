@@ -7,7 +7,14 @@ class ElectionDataProcessor {
     async loadData() {
         try {
             console.log('Loading election data from CSV...');
-            const response = await fetch('./data/countypres_2000-2024.csv');
+            // Try loading from multiple sources for reliability
+            let response;
+            try {
+                response = await fetch('./data/countypres_2000-2024.csv');
+            } catch (error) {
+                console.warn('Local CSV failed, trying GitHub raw URL as fallback');
+                response = await fetch('https://raw.githubusercontent.com/nickstagrammed/ElectionWall/master/data/countypres_2000-2024.csv');
+            }
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
