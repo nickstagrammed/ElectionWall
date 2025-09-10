@@ -97,7 +97,7 @@ class ElectionMagicWall {
             mobileToggle.addEventListener('click', () => {
                 detailPanel.classList.toggle('open');
                 // Update toggle icon
-                mobileToggle.textContent = detailPanel.classList.contains('open') ? '✕' : 'ℹ';
+                mobileToggle.textContent = detailPanel.classList.contains('open') ? '✕' : 'ℹ︎';
             });
         }
         
@@ -106,7 +106,7 @@ class ElectionMagicWall {
                 detailPanel.classList.remove('open');
                 // Reset toggle icon
                 if (mobileToggle) {
-                    mobileToggle.textContent = 'ℹ';
+                    mobileToggle.textContent = 'ℹ︎';
                 }
             });
         }
@@ -120,7 +120,7 @@ class ElectionMagicWall {
                     !e.target.closest('#mobilePanelToggle')) {
                     detailPanel.classList.remove('open');
                     if (mobileToggle) {
-                        mobileToggle.textContent = 'ℹ';
+                        mobileToggle.textContent = 'ℹ︎';
                     }
                 }
             });

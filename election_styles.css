@@ -568,7 +568,8 @@ body {
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    font-size: 18px;
+    font-size: 20px;
+    font-weight: bold;
     z-index: 2000;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -576,6 +577,22 @@ body {
 
 .mobile-panel-toggle:hover {
     background: #005a99;
+}
+
+.mobile-panel-toggle::after {
+    content: 'Info';
+    position: absolute;
+    right: -45px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: normal;
+    white-space: nowrap;
+    pointer-events: none;
 }
 
 /* Selection Labels */
