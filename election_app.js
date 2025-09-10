@@ -80,6 +80,48 @@ class ElectionMagicWall {
         } else {
             console.error('Drill-up button not found! ID: drillUpButton');
         }
+        
+        // Setup mobile panel controls
+        this.setupMobilePanelControls();
+    }
+    
+    setupMobilePanelControls() {
+        const mobileToggle = document.getElementById('mobilePanelToggle');
+        const mobileClose = document.getElementById('mobileClosePanel');
+        const detailPanel = document.getElementById('detailPanel');
+        
+        if (mobileToggle && detailPanel) {
+            mobileToggle.addEventListener('click', () => {
+                detailPanel.classList.toggle('open');
+                // Update toggle icon
+                mobileToggle.textContent = detailPanel.classList.contains('open') ? '✕' : 'ℹ';
+            });
+        }
+        
+        if (mobileClose && detailPanel) {
+            mobileClose.addEventListener('click', () => {
+                detailPanel.classList.remove('open');
+                // Reset toggle icon
+                if (mobileToggle) {
+                    mobileToggle.textContent = 'ℹ';
+                }
+            });
+        }
+        
+        // Close panel when clicking outside on mobile
+        if (detailPanel) {
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && 
+                    detailPanel.classList.contains('open') && 
+                    !detailPanel.contains(e.target) && 
+                    !e.target.closest('#mobilePanelToggle')) {
+                    detailPanel.classList.remove('open');
+                    if (mobileToggle) {
+                        mobileToggle.textContent = 'ℹ';
+                    }
+                }
+            });
+        }
     }
     
     setupYearSelector() {
