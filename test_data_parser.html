@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Parser Test</title>
+</head>
+<body>
+    <h1>Election Data Parser Test</h1>
+    <div id="results"></div>
+    
+    <script src="electionDataProcessor.js"></script>
+    <script>
+        async function testParser() {
+            const processor = new ElectionDataProcessor();
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                resultsDiv.innerHTML += '<p>Loading data...</p>';
+                await processor.loadData();
+                
+                resultsDiv.innerHTML += '<p>Data loaded successfully!</p>';
+                
+                // Test some specific lookups
+                const alabama2024 = processor.getStateResults('2024', 'ALABAMA');
+                resultsDiv.innerHTML += `<p>Alabama 2024: ${JSON.stringify(alabama2024, null, 2)}</p>`;
+                
+                const autauga2024 = processor.getCountyResults('2024', 'ALABAMA', 'AUTAUGA');
+                resultsDiv.innerHTML += `<p>Autauga County 2024: ${JSON.stringify(autauga2024, null, 2)}</p>`;
+                
+                const national2024 = processor.getNationalResults('2024');
+                resultsDiv.innerHTML += `<p>National 2024 (first 3 results): ${JSON.stringify(national2024.results.slice(0, 3), null, 2)}</p>`;
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error(error);
+            }
+        }
+        
+        testParser();
+    </script>
+</body>
+</html>

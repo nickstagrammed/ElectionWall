@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Magic Wall - Presidential Results by County</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="election_styles.css">
+</head>
+<body>
+    <div id="app">
+        <header class="dashboard-header">
+            <h1>Election Magic Wall</h1>
+            <div class="year-selector-container">
+                <select id="yearSelector" class="year-selector">
+                    <option value="2024">2024 Election</option>
+                    <option value="2020">2020 Election</option>
+                    <option value="2016">2016 Election</option>
+                    <option value="2012">2012 Election</option>
+                    <option value="2008">2008 Election</option>
+                    <option value="2004">2004 Election</option>
+                    <option value="2000">2000 Election</option>
+                </select>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div id="map" class="map-container">
+                <button id="drillUpButton" class="drill-up-button" style="display: none;" title="Drill up one level">
+                    ↺
+                </button>
+            </div>
+            
+            <div id="detailPanel" class="detail-panel">
+                <div class="sidebar-header">
+                    <div class="election-info" id="electionInfo">
+                        <span class="election-year">2024</span>
+                        <span class="election-title">Presidential Election</span>
+                    </div>
+                    <div class="sidebar-instructions" id="sidebarInstructions">
+                        Click on counties to view election results
+                    </div>
+                </div>
+                <div class="sidebar-content">
+                    <div id="detailContent">
+                        <div class="sidebar-intro">
+                            <h3>Election Results Analysis</h3>
+                            <p>Explore presidential election results by county:</p>
+                            <ul>
+                                <li>Vote totals and percentages</li>
+                                <li>Margin of victory</li>
+                                <li>Historical comparison</li>
+                                <li>Turnout analysis</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div id="nationalSummary" class="national-summary" style="display: none;">
+                        <h4>National Results</h4>
+                        <div class="national-results-container">
+                            <div class="candidate-result democrat">
+                                <div class="candidate-name" id="democratName">Democratic</div>
+                                <div class="candidate-votes" id="democratVotes">0</div>
+                                <div class="candidate-percentage" id="democratPercentage">0%</div>
+                            </div>
+                            <div class="candidate-result republican">
+                                <div class="candidate-name" id="republicanName">Republican</div>
+                                <div class="candidate-votes" id="republicanVotes">0</div>
+                                <div class="candidate-percentage" id="republicanPercentage">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Lightbox Modal for County Details -->
+    <div class="lightbox-overlay" id="countyLightbox">
+        <div class="lightbox-modal">
+            <button class="lightbox-close" onclick="closeCountyLightbox()">&times;</button>
+            <h2 class="lightbox-title" id="lightboxTitle">County Results</h2>
+            <div class="lightbox-subtitle" id="lightboxSubtitle">Loading data...</div>
+            <div class="lightbox-results-container" id="lightboxResults">
+                <!-- County results will be populated dynamically -->
+            </div>
+            <div class="lightbox-stats" id="lightboxStats">
+                <!-- County stats will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Chart.js for any charts we might add -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FIPS Code Mapping -->
+    <script src="fipsMapping.js"></script>
+    
+    <!-- Embedded Boundaries (fallback for CORS issues) -->
+    <script src="embedded_boundaries.js"></script>
+    
+    <!-- County Coordinates (we can adapt from real estate project) -->
+    <script src="countyCoordinates.js"></script>
+    
+    <!-- Election Data Processor -->
+    <script src="electionDataProcessor.js"></script>
+    
+    <!-- Main Election Dashboard JavaScript -->
+    <script src="election_app.js"></script>
+</body>
+</html>
