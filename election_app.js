@@ -89,6 +89,7 @@ class ElectionMagicWall {
     }
     
     setupMobilePanelControls() {
+        // Legacy mobile toggle (hidden on mobile now)
         const mobileToggle = document.getElementById('mobilePanelToggle');
         const mobileClose = document.getElementById('mobileClosePanel');
         const detailPanel = document.getElementById('detailPanel');
@@ -96,7 +97,6 @@ class ElectionMagicWall {
         if (mobileToggle && detailPanel) {
             mobileToggle.addEventListener('click', () => {
                 detailPanel.classList.toggle('open');
-                // Update toggle icon
                 mobileToggle.textContent = detailPanel.classList.contains('open') ? '✕' : 'ℹ︎';
             });
         }
@@ -104,26 +104,118 @@ class ElectionMagicWall {
         if (mobileClose && detailPanel) {
             mobileClose.addEventListener('click', () => {
                 detailPanel.classList.remove('open');
-                // Reset toggle icon
                 if (mobileToggle) {
                     mobileToggle.textContent = 'ℹ︎';
                 }
             });
         }
         
-        // Close panel when clicking outside on mobile
-        if (detailPanel) {
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768 && 
-                    detailPanel.classList.contains('open') && 
-                    !detailPanel.contains(e.target) && 
-                    !e.target.closest('#mobilePanelToggle')) {
-                    detailPanel.classList.remove('open');
-                    if (mobileToggle) {
-                        mobileToggle.textContent = 'ℹ︎';
-                    }
+        // Setup mobile bottom bar
+        this.setupMobileBottomBar();
+    }
+    
+    setupMobileBottomBar() {
+        const mobileBottomBar = document.getElementById('mobileBottomBar');
+        const mobileBottomHeader = document.getElementById('mobileBottomHeader');
+        
+        if (!mobileBottomBar || !mobileBottomHeader) return;
+        
+        let isExpanded = false;
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+        
+        // Touch events for swipe gesture
+        mobileBottomHeader.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+            isDragging = true;
+            mobileBottomBar.style.transition = 'none';
+        });
+        
+        mobileBottomHeader.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            currentY = e.touches[0].clientY;
+            const deltaY = currentY - startY;
+            
+            // Only allow upward swipe when collapsed, downward when expanded
+            if ((!isExpanded && deltaY < 0) || (isExpanded && deltaY > 0)) {
+                const moveDistance = Math.abs(deltaY);
+                const maxMove = window.innerHeight * 0.7 - 70; // 70vh - header height
+                const progress = Math.min(moveDistance / maxMove, 1);
+                
+                if (!isExpanded) {
+                    // Expanding: move up from collapsed position
+                    const translateY = 100 - (30 + (70 * progress)); // Start from collapsed position
+                    mobileBottomBar.style.transform = `translateY(${Math.max(translateY, 0)}%)`;
+                } else {
+                    // Collapsing: move down from expanded position
+                    const translateY = progress * (100 - 30); // Move towards collapsed position
+                    mobileBottomBar.style.transform = `translateY(${Math.min(translateY, 70)}%)`;
                 }
-            });
+            }
+        });
+        
+        mobileBottomHeader.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            
+            const deltaY = currentY - startY;
+            const threshold = 50; // Minimum swipe distance
+            
+            mobileBottomBar.style.transition = 'transform 0.3s ease';
+            
+            if (!isExpanded && deltaY < -threshold) {
+                // Expand
+                this.expandMobileBottomBar();
+            } else if (isExpanded && deltaY > threshold) {
+                // Collapse
+                this.collapseMobileBottomBar();
+            } else {
+                // Return to current state
+                if (isExpanded) {
+                    this.expandMobileBottomBar();
+                } else {
+                    this.collapseMobileBottomBar();
+                }
+            }
+            
+            isDragging = false;
+        });
+        
+        // Click to toggle
+        mobileBottomHeader.addEventListener('click', () => {
+            if (isExpanded) {
+                this.collapseMobileBottomBar();
+            } else {
+                this.expandMobileBottomBar();
+            }
+        });
+        
+        // Store state reference
+        this.mobileBottomBar = {
+            element: mobileBottomBar,
+            isExpanded: () => isExpanded,
+            setExpanded: (expanded) => { isExpanded = expanded; }
+        };
+    }
+    
+    expandMobileBottomBar() {
+        const mobileBottomBar = document.getElementById('mobileBottomBar');
+        if (mobileBottomBar) {
+            mobileBottomBar.classList.remove('collapsed');
+            mobileBottomBar.classList.add('expanded');
+            mobileBottomBar.style.transform = 'translateY(0)';
+            this.mobileBottomBar?.setExpanded(true);
+        }
+    }
+    
+    collapseMobileBottomBar() {
+        const mobileBottomBar = document.getElementById('mobileBottomBar');
+        if (mobileBottomBar) {
+            mobileBottomBar.classList.remove('expanded');
+            mobileBottomBar.classList.add('collapsed');
+            mobileBottomBar.style.transform = 'translateY(calc(100% - 70px))';
+            this.mobileBottomBar?.setExpanded(false);
         }
     }
     
@@ -133,12 +225,39 @@ class ElectionMagicWall {
             this.selectionLabel.className = `selection-label ${type}`;
             this.selectionLabel.style.display = 'block';
         }
+        
+        // Update mobile bottom bar title
+        this.updateMobileBottomBarTitle(text, type);
+    }
+    
+    updateMobileBottomBarTitle(text, type = 'default') {
+        const mobileTitle = document.getElementById('mobileSelectionTitle');
+        const mobileSubtitle = document.getElementById('mobileSelectionSubtitle');
+        
+        if (mobileTitle && mobileSubtitle) {
+            if (text && text !== 'Select a State or County') {
+                mobileTitle.textContent = text;
+                if (type === 'state') {
+                    mobileSubtitle.textContent = 'Tap to view state election data';
+                } else if (type === 'county') {
+                    mobileSubtitle.textContent = 'Tap to view county election data';
+                } else {
+                    mobileSubtitle.textContent = 'Tap to view election data';
+                }
+            } else {
+                mobileTitle.textContent = 'Select a State or County';
+                mobileSubtitle.textContent = 'Tap to view election data';
+            }
+        }
     }
     
     hideSelectionLabel() {
         if (this.selectionLabel) {
             this.selectionLabel.style.display = 'none';
         }
+        
+        // Reset mobile bottom bar title
+        this.updateMobileBottomBarTitle('', 'default');
     }
     
     setupYearSelector() {
@@ -375,6 +494,30 @@ class ElectionMagicWall {
         return this.processor.getPartyColor(results.winningParty);
     }
 
+    getCountyResultsByFipsWithAlaskaHandling(stateName, fullFips) {
+        // Try direct FIPS lookup first
+        let results = this.processor.getCountyResultsByFips(this.currentYear, stateName, fullFips);
+        
+        // For Alaska, also try finding by the reverse mapping (boundary FIPS to district FIPS)
+        if (!results && stateName.toUpperCase() === 'ALASKA') {
+            // Look for Alaska district that maps to this boundary FIPS
+            const alaskaData = this.processor.data?.[this.currentYear]?.['ALASKA'];
+            if (alaskaData) {
+                for (const districtFips in alaskaData) {
+                    const district = alaskaData[districtFips];
+                    // Check if this district's original FIPS matches or if the normalized FIPS matches
+                    if (district.originalFips === fullFips.substring(2) || districtFips === fullFips) {
+                        results = this.processor.calculateResults(district.results);
+                        console.log(`Found Alaska match for details: boundary FIPS ${fullFips} -> district FIPS ${districtFips}`);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return results;
+    }
+
     getCountyColorByRealFips(fullFips, countyName, year) {
         // Extract state from FIPS (first 2 digits)
         const stateFips = fullFips.substring(0, 2);
@@ -382,8 +525,25 @@ class ElectionMagicWall {
         
         if (!stateName) return '#cccccc';
         
-        // Try getting results by FIPS first
+        // For Alaska, the boundary FIPS might match our normalized FIPS directly
         let results = this.processor.getCountyResultsByFips(year, stateName, fullFips);
+        
+        // For Alaska, also try finding by the reverse mapping (boundary FIPS to district FIPS)
+        if (!results && stateName.toUpperCase() === 'ALASKA') {
+            // Look for Alaska district that maps to this boundary FIPS
+            const alaskaData = this.processor.data?.[year]?.['ALASKA'];
+            if (alaskaData) {
+                for (const districtFips in alaskaData) {
+                    const district = alaskaData[districtFips];
+                    // Check if this district's original FIPS matches or if the normalized FIPS matches
+                    if (district.originalFips === fullFips.substring(2) || districtFips === fullFips) {
+                        results = this.processor.calculateResults(district.results);
+                        console.log(`Found Alaska match: boundary FIPS ${fullFips} -> district FIPS ${districtFips}`);
+                        break;
+                    }
+                }
+            }
+        }
         
         // Fallback to county name if FIPS doesn't work
         if (!results && countyName) {
@@ -814,14 +974,19 @@ class ElectionMagicWall {
         this.selectedState = stateName;
         this.selectedStateLayer = layer;
         
-        // Highlight selected state with prominent styling
+        // Highlight selected state with white glow effect
         layer.setStyle({
-            weight: 4,
+            weight: 3,
             opacity: 1,
             fillOpacity: 0.85,
-            color: '#FF6B35', // Bright orange border
-            dashArray: '8, 4' // Longer dashed border for state level
+            color: '#FFFFFF', // White border
+            dashArray: '' // Solid border
         });
+        
+        // Add CSS class for glow effect
+        if (layer._path) {
+            layer._path.classList.add('selected-state');
+        }
         
         // Add click handler to the selected state - clicking again drills to counties
         layer.off('click'); // Remove any existing click handler
@@ -834,7 +999,7 @@ class ElectionMagicWall {
         });
         
         // Snap to selected state - center map on state bounds
-        this.snapToState(layer);
+        this.snapToState(layer, stateName);
         
         // Show selection label on map
         this.showSelectionLabel(stateName, 'state');
@@ -849,11 +1014,16 @@ class ElectionMagicWall {
     clearStateSelection() {
         if (this.selectedStateLayer) {
             this.selectedStateLayer.setStyle({
-                weight: 1,
-                opacity: 0.8,
+                weight: 2,
+                opacity: 1,
                 fillOpacity: 0.7,
-                color: '#666'
+                color: 'white',
+                dashArray: '3'
             });
+            // Remove CSS glow class
+            if (this.selectedStateLayer._path) {
+                this.selectedStateLayer._path.classList.remove('selected-state');
+            }
             // Remove click handler when clearing selection
             this.selectedStateLayer.off('click');
         }
@@ -869,10 +1039,14 @@ class ElectionMagicWall {
         if (this.selectedCountyLayer) {
             this.selectedCountyLayer.setStyle({
                 weight: 1,
-                opacity: 0.8,
-                fillOpacity: 0.7,
-                color: '#666'
+                opacity: 1,
+                fillOpacity: 0.8,
+                color: 'white'
             });
+            // Remove CSS glow class
+            if (this.selectedCountyLayer._path) {
+                this.selectedCountyLayer._path.classList.remove('selected-county');
+            }
         }
         this.selectedCounty = null;
         this.selectedCountyLayer = null;
@@ -885,11 +1059,39 @@ class ElectionMagicWall {
         }
     }
 
-    snapToState(layer) {
+    snapToState(layer, stateName) {
         if (!layer) return;
         
+        console.log(`Snapping to state: ${stateName}`);
+        
         try {
-            // Get the bounds of the selected state
+            // Special handling for Alaska to avoid Europe centering issue
+            if (stateName && stateName.toUpperCase() === 'ALASKA') {
+                console.log('Using special Alaska bounds to avoid coordinate issues');
+                // Use predefined Alaska bounds to avoid longitude wraparound issues
+                const alaskaBounds = L.latLngBounds(
+                    [51.214, -179.148], // Southwest corner
+                    [71.538, -129.979]  // Northeast corner  
+                );
+                const zoom = 4; // Appropriate zoom for Alaska
+                
+                this.currentStateBounds = {
+                    bounds: alaskaBounds,
+                    zoom: zoom
+                };
+                
+                this.map.fitBounds(alaskaBounds, {
+                    padding: [20, 20],
+                    maxZoom: zoom,
+                    animate: true,
+                    duration: 0.8
+                });
+                
+                console.log(`Alaska snap complete with predefined bounds`);
+                return;
+            }
+            
+            // Regular handling for other states
             const bounds = layer.getBounds();
             
             // Store these bounds for reuse when double-clicking to county view
@@ -969,21 +1171,28 @@ class ElectionMagicWall {
 
     showIntroContent() {
         const detailContent = document.getElementById('detailContent');
+        const mobileContent = document.getElementById('mobileDetailContent');
         const sidebarInstructions = document.getElementById('sidebarInstructions');
         
+        const introContent = `
+            <div class="sidebar-intro">
+                <h3>Election Results Analysis</h3>
+                <p>Explore ${this.currentYear} presidential election results:</p>
+                <ul>
+                    <li>Click states to view detailed results</li>
+                    <li>Click again to drill down to counties</li>
+                    <li>Compare vote totals and margins</li>
+                    <li>Track historical trends</li>
+                </ul>
+            </div>
+        `;
+        
         if (detailContent) {
-            detailContent.innerHTML = `
-                <div class="sidebar-intro">
-                    <h3>Election Results Analysis</h3>
-                    <p>Explore ${this.currentYear} presidential election results:</p>
-                    <ul>
-                        <li>Click states to view detailed results</li>
-                        <li>Click again to drill down to counties</li>
-                        <li>Compare vote totals and margins</li>
-                        <li>Track historical trends</li>
-                    </ul>
-                </div>
-            `;
+            detailContent.innerHTML = introContent;
+        }
+        
+        if (mobileContent) {
+            mobileContent.innerHTML = introContent;
         }
         
         if (sidebarInstructions) {
@@ -1022,19 +1231,33 @@ class ElectionMagicWall {
         // Clear previous county selection highlighting
         this.clearCountySelection();
         
+        // Store county FIPS for detailed lookup
+        let countyFips = null;
+        if (layer && layer.feature && layer.feature.properties) {
+            const stateFips = layer.feature.properties.STATE;
+            const countyFipsCode = layer.feature.properties.COUNTY;
+            countyFips = stateFips + countyFipsCode;
+            console.log(`County FIPS: ${countyFips} for ${countyName}, ${stateName}`);
+        }
+        
         // Set new county selection
-        this.selectedCounty = { name: countyName, state: stateName };
+        this.selectedCounty = { name: countyName, state: stateName, fips: countyFips };
         this.selectedCountyLayer = layer;
         
-        // Highlight selected county with prominent styling
+        // Highlight selected county with white glow effect
         if (layer) {
             layer.setStyle({
-                weight: 4,
+                weight: 3,
                 opacity: 1,
                 fillOpacity: 0.9,
-                color: '#FFD700', // Bright gold border
-                dashArray: '5, 5' // Dashed border for extra visibility
+                color: '#FFFFFF', // White border
+                dashArray: '' // Solid border
             });
+            
+            // Add CSS class for glow effect
+            if (layer._path) {
+                layer._path.classList.add('selected-county');
+            }
             
             // Snap to county BUT don't overwrite the original state bounds
             const originalStateBounds = this.currentStateBounds; // Preserve original state bounds
@@ -1048,12 +1271,21 @@ class ElectionMagicWall {
         this.showSelectionLabel(`${countyName}, ${stateName}`, 'county');
         
         // Show county details in sidebar
-        this.showCountyDetails(stateName, countyName);
+        this.showCountyDetails(stateName, countyName, countyFips);
     }
     
-    showCountyDetails(stateName, countyName) {
-        console.log(`Showing county details for: ${countyName}, ${stateName}`);
-        const results = this.processor.getCountyResults(this.currentYear, stateName, countyName);
+    showCountyDetails(stateName, countyName, countyFips = null) {
+        console.log(`Showing county details for: ${countyName}, ${stateName}, FIPS: ${countyFips}`);
+        
+        // Try FIPS first, then fall back to name
+        let results = null;
+        if (countyFips) {
+            results = this.getCountyResultsByFipsWithAlaskaHandling(stateName, countyFips);
+        }
+        if (!results) {
+            results = this.processor.getCountyResults(this.currentYear, stateName, countyName);
+        }
+        
         if (results) {
             this.updateSidebarContent('county_details', stateName, countyName, results);
             
@@ -1089,10 +1321,11 @@ class ElectionMagicWall {
     
     updateSidebarContent(level, stateName, countyName, results) {
         const sidebarContent = document.getElementById('detailContent');
-        if (!sidebarContent || !results) return;
+        const mobileContent = document.getElementById('mobileDetailContent');
+        if ((!sidebarContent && !mobileContent) || !results) return;
         
         if (level === 'state_details') {
-            sidebarContent.innerHTML = `
+            const content = `
                 <div class="state-details">
                     <h3>${stateName} Election Results</h3>
                     <div class="election-year-display">${this.currentYear} Presidential Election</div>
@@ -1128,8 +1361,11 @@ class ElectionMagicWall {
                     </div>
                 </div>
             `;
+            
+            if (sidebarContent) sidebarContent.innerHTML = content;
+            if (mobileContent) mobileContent.innerHTML = content;
         } else if (level === 'county_details') {
-            sidebarContent.innerHTML = `
+            const content = `
                 <div class="county-details">
                     <h3>${countyName} County, ${stateName}</h3>
                     <div class="election-year-display">${this.currentYear} Presidential Election</div>
@@ -1161,6 +1397,9 @@ class ElectionMagicWall {
                     </div>
                 </div>
             `;
+            
+            if (sidebarContent) sidebarContent.innerHTML = content;
+            if (mobileContent) mobileContent.innerHTML = content;
         }
     }
     
