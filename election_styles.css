@@ -595,32 +595,14 @@ body {
     pointer-events: none;
 }
 
-/* Selection Labels */
-.selection-label {
-    position: absolute;
-    top: 60px;
-    left: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    pointer-events: none;
-    max-width: 250px;
-    word-wrap: break-word;
+
+/* Map feature glow effects */
+.leaflet-interactive.selected-state {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.4));
 }
 
-.selection-label.county {
-    background: rgba(255, 215, 0, 0.9);
-    color: #333;
-}
-
-.selection-label.state {
-    background: rgba(255, 107, 53, 0.9);
-    color: white;
+.leaflet-interactive.selected-county {
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 12px rgba(255, 215, 0, 0.4));
 }
 
 /* Enhanced Drill-up Button for Mobile */
@@ -644,34 +626,213 @@ body {
     font-weight: bold;
 }
 
+/* Mobile Bottom Sidebar */
+.mobile-bottom-bar {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+    z-index: 1000;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+}
+
+.mobile-bottom-bar.collapsed {
+    transform: translateY(calc(100% - 70px));
+}
+
+.mobile-bottom-bar.expanded {
+    transform: translateY(0);
+    height: 70vh;
+}
+
+.mobile-bottom-header {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    touch-action: pan-y;
+    position: relative;
+    user-select: none;
+}
+
+.mobile-bottom-header:active {
+    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+}
+
+.mobile-selection-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    line-height: 1.2;
+    transition: color 0.2s ease;
+}
+
+.mobile-selection-subtitle {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 2px;
+    transition: color 0.2s ease;
+}
+
+.mobile-drag-handle {
+    width: 40px;
+    height: 4px;
+    background: #ccc;
+    border-radius: 2px;
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: background-color 0.2s ease;
+}
+
+.mobile-bottom-header:hover .mobile-drag-handle,
+.mobile-bottom-header:active .mobile-drag-handle {
+    background: #007acc;
+}
+
+.mobile-expand-icon {
+    font-size: 1.2rem;
+    color: #666;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+    margin-left: 10px;
+}
+
+.mobile-bottom-bar.expanded .mobile-expand-icon {
+    transform: rotate(180deg);
+    color: #007acc;
+}
+
+.mobile-bottom-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #fff;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Enhanced mobile content styling */
+.mobile-bottom-content .state-details,
+.mobile-bottom-content .county-details {
+    padding: 0;
+}
+
+.mobile-bottom-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+.mobile-bottom-content .election-year-display {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1.25rem;
+}
+
+.mobile-bottom-content .candidate-result {
+    margin: 0.75rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    border-left: 4px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.mobile-bottom-content .candidate-result:hover {
+    background: #e9ecef;
+    transform: translateX(2px);
+}
+
+.mobile-bottom-content .candidate-result.winner {
+    background: #e8f4f8;
+    box-shadow: 0 2px 8px rgba(0, 122, 204, 0.1);
+}
+
+.mobile-bottom-content .candidate-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.mobile-bottom-content .candidate-votes {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.mobile-bottom-content .state-summary,
+.mobile-bottom-content .county-summary {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.mobile-bottom-content .summary-item {
+    margin: 0.75rem 0;
+    font-size: 1rem;
+}
+
+.mobile-bottom-content .summary-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.mobile-bottom-content .summary-value {
+    font-weight: 700;
+    color: #333;
+}
+
+/* Smooth animations for content changes */
+.mobile-bottom-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .mobile-panel-toggle {
-        display: block;
+        display: none;
+    }
+    
+    .mobile-bottom-bar {
+        display: flex;
+        flex-direction: column;
     }
     
     .detail-panel {
-        width: 90%;
-        position: fixed;
-        right: -90%;
-        top: 0;
-        height: 100vh;
-        transition: right 0.3s ease;
-        z-index: 1500;
-        box-shadow: -4px 0 12px rgba(0,0,0,0.3);
-    }
-    
-    .detail-panel.open {
-        right: 0;
+        display: none;
     }
     
     .main-content {
         position: relative;
+        height: calc(100vh - 80px);
     }
     
     .map-container {
         width: 100%;
-        height: calc(100vh - 120px);
+        height: 100%;
+        padding-bottom: 70px;
     }
     
     .dashboard-header {

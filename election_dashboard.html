@@ -35,12 +35,12 @@
             </button>
             
             <div id="map" class="map-container">
-                <div id="selectionLabel" class="selection-label" style="display: none;"></div>
                 <button id="drillUpButton" class="drill-up-button" style="display: none;" title="Drill up one level">
                     ↺
                 </button>
             </div>
             
+            <!-- Desktop Sidebar -->
             <div id="detailPanel" class="detail-panel">
                 <button id="mobileClosePanel" class="mobile-close-panel" title="Close Panel">×</button>
                 <div class="sidebar-header">
@@ -80,6 +80,23 @@
                                 <div class="candidate-percentage" id="republicanPercentage">0%</div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Bottom Sidebar -->
+            <div id="mobileBottomBar" class="mobile-bottom-bar collapsed">
+                <div class="mobile-drag-handle"></div>
+                <div id="mobileBottomHeader" class="mobile-bottom-header">
+                    <div>
+                        <div id="mobileSelectionTitle" class="mobile-selection-title">Select a State or County</div>
+                        <div id="mobileSelectionSubtitle" class="mobile-selection-subtitle">Tap to view election data</div>
+                    </div>
+                    <div class="mobile-expand-icon">▲</div>
+                </div>
+                <div id="mobileBottomContent" class="mobile-bottom-content">
+                    <div id="mobileDetailContent">
+                        <!-- Content will be populated dynamically -->
                     </div>
                 </div>
             </div>

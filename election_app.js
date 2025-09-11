@@ -220,13 +220,7 @@ class ElectionMagicWall {
     }
     
     showSelectionLabel(text, type = 'default') {
-        if (this.selectionLabel) {
-            this.selectionLabel.textContent = text;
-            this.selectionLabel.className = `selection-label ${type}`;
-            this.selectionLabel.style.display = 'block';
-        }
-        
-        // Update mobile bottom bar title
+        // Selection label removed - only update mobile bottom bar title
         this.updateMobileBottomBarTitle(text, type);
     }
     
@@ -252,11 +246,7 @@ class ElectionMagicWall {
     }
     
     hideSelectionLabel() {
-        if (this.selectionLabel) {
-            this.selectionLabel.style.display = 'none';
-        }
-        
-        // Reset mobile bottom bar title
+        // Selection label removed - only reset mobile bottom bar title
         this.updateMobileBottomBarTitle('', 'default');
     }
     
